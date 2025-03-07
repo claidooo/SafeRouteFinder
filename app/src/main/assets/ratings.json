@@ -1,0 +1,9 @@
+{
+  "streets": [
+    {"name": "San Marcelino St", "rating": 4.5},
+    {"name": "P. Faura St", "rating": 3.8},
+    {"name": "Adriatico St", "rating": 2.5},
+    {"name": "Taft Avenue", "rating": 4.2},
+    {"name": "Gen. Luna St", "rating": 3.0}
+  ]
+}

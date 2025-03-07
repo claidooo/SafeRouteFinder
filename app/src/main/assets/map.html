@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <style>
+        #map { height: 100vh; }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    var urlParams = new URLSearchParams(window.location.search);
+    var userLat = parseFloat(urlParams.get('lat')) || 14.5823;
+    var userLng = parseFloat(urlParams.get('lng')) || 120.9860;
+    var destLat, destLng;
+    var map = L.map('map').setView([14.5823, 120.9860], 16);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+    }).addTo(map);
+
+    map.setMaxBounds([
+        [14.5780, 120.9810],
+        [14.5865, 120.9910]
+    ]);
+
+    L.marker([userLat, userLng]).addTo(map)
+        .bindPopup("You are here")
+        .openPopup();
+
+    var destinationMarker, routeLayer;
+
+    map.on('click', function(e) {
+        destLat = e.latlng.lat;
+        destLng = e.latlng.lng;
+
+        if (destinationMarker) {
+            map.removeLayer(destinationMarker);
+        }
+
+        destinationMarker = L.marker([destLat, destLng]).addTo(map)
+            .bindPopup("Destination Selected")
+            .openPopup();
+
+        Android.sendDestination(destLat, destLng);
+    });
+
+
+
+    function drawSafestRoute(routeJson) {
+    console.log("🛠️ Received route JSON:", routeJson);
+    alert("📍 Drawing route: " + routeJson); // Debugging pop-up
+
+    if (typeof routeJson !== "string") {
+        console.error("❌ Received a non-string JSON. Converting...");
+        routeJson = JSON.stringify(routeJson); // Convert to string
+    }
+
+    let route;
+    try {
+        route = JSON.parse(routeJson);
+    } catch (error) {
+        console.error("❌ Failed to parse JSON:", error);
+        alert("Error parsing route JSON");
+        return;
+    }
+
+    let latLngs = route.map(point => [point.lat, point.lng]);
+
+    if (latLngs.length > 1) {
+        routeLayer = L.polyline(latLngs, { color: "blue", weight: 5 }).addTo(map);
+        console.log("✅ Route drawn successfully.");
+        map.fitBounds(routeLayer.getBounds());
+    } else {
+        console.error("❌ Error: Route has too few points.");
+        alert("Error: Route has too few points.");
+    }
+}
+
+
+
+
+</script>
+</body>
+</html>
