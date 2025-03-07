@@ -47,38 +47,50 @@
         Android.sendDestination(destLat, destLng);
     });
 
-
-
     function drawSafestRoute(routeJson) {
     console.log("🛠️ Received route JSON:", routeJson);
-    alert("📍 Drawing route: " + routeJson); // Debugging pop-up
+    alert("📍 Drawing route: " + routeJson); // Popup for debugging
 
-    if (typeof routeJson !== "string") {
-        console.error("❌ Received a non-string JSON. Converting...");
-        routeJson = JSON.stringify(routeJson); // Convert to string
+    // ✅ Ensure routeLayer exists before removing it
+    if (window.routeLayer) {
+        map.removeLayer(window.routeLayer);
+        window.routeLayer = null; // Clear the old route
     }
 
     let route;
-    try {
-        route = JSON.parse(routeJson);
-    } catch (error) {
-        console.error("❌ Failed to parse JSON:", error);
-        alert("Error parsing route JSON");
+
+    // ✅ Only parse JSON if it's a string
+    if (typeof routeJson === "string") {
+        try {
+            route = JSON.parse(routeJson);
+        } catch (error) {
+            console.error("❌ JSON Parse Error:", error, "Raw Data:", routeJson);
+            alert("Error parsing route JSON: " + error.message);
+            return;
+        }
+    } else {
+        route = routeJson; // If it's already an object, use it directly
+    }
+
+    // ✅ Ensure route is a valid array
+    if (!Array.isArray(route) || route.length === 0) {
+        console.error("❌ Error: Route is empty or invalid.");
+        alert("Error: Route data is missing or invalid.");
         return;
     }
 
     let latLngs = route.map(point => [point.lat, point.lng]);
 
     if (latLngs.length > 1) {
-        routeLayer = L.polyline(latLngs, { color: "blue", weight: 5 }).addTo(map);
+        // ✅ Store new routeLayer globally so it can be removed later
+        window.routeLayer = L.polyline(latLngs, { color: "blue", weight: 5 }).addTo(map);
         console.log("✅ Route drawn successfully.");
-        map.fitBounds(routeLayer.getBounds());
+        map.fitBounds(window.routeLayer.getBounds());
     } else {
         console.error("❌ Error: Route has too few points.");
         alert("Error: Route has too few points.");
     }
 }
-
 
 
 
