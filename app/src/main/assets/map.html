@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -15,11 +15,10 @@
     var userLat = parseFloat(urlParams.get('lat')) || 14.5823;
     var userLng = parseFloat(urlParams.get('lng')) || 120.9860;
     var destLat, destLng;
-    var map = L.map('map').setView([14.5823, 120.9860], 16);
+    var apiKey = "5b3ce3597851110001cf6248c374c1d74b7c461cb646776b494655f8";
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-    }).addTo(map);
+    var map = L.map('map').setView([userLat, userLng], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
 
     map.setMaxBounds([
         [14.5780, 120.9810],
@@ -45,55 +44,36 @@
             .openPopup();
 
         Android.sendDestination(destLat, destLng);
+        getRoute(userLat, userLng, destLat, destLng);
     });
 
-    function drawSafestRoute(routeJson) {
-    console.log("🛠️ Received route JSON:", routeJson);
-    alert("📍 Drawing route: " + routeJson); // Popup for debugging
+    function getRoute(startLat, startLng, endLat, endLng) {
+        let url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${startLng},${startLat}&end=${endLng},${endLat}`;
 
-    // ✅ Ensure routeLayer exists before removing it
-    if (window.routeLayer) {
-        map.removeLayer(window.routeLayer);
-        window.routeLayer = null; // Clear the old route
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.routes || data.routes.length === 0) {
+                    console.error("❌ No route found!");
+                    alert("No route available.");
+                    return;
+                }
+
+                let coordinates = data.routes[0].geometry.coordinates;
+                let latLngs = coordinates.map(coord => [coord[1], coord[0]]);
+
+                if (routeLayer) {
+                    map.removeLayer(routeLayer);
+                }
+
+                routeLayer = L.polyline(latLngs, { color: "blue", weight: 5 }).addTo(map);
+                map.fitBounds(routeLayer.getBounds());
+            })
+            .catch(error => {
+                console.error("❌ Route Fetch Error:", error);
+                alert("Error fetching route.");
+            });
     }
-
-    let route;
-
-    // ✅ Only parse JSON if it's a string
-    if (typeof routeJson === "string") {
-        try {
-            route = JSON.parse(routeJson);
-        } catch (error) {
-            console.error("❌ JSON Parse Error:", error, "Raw Data:", routeJson);
-            alert("Error parsing route JSON: " + error.message);
-            return;
-        }
-    } else {
-        route = routeJson; // If it's already an object, use it directly
-    }
-
-    // ✅ Ensure route is a valid array
-    if (!Array.isArray(route) || route.length === 0) {
-        console.error("❌ Error: Route is empty or invalid.");
-        alert("Error: Route data is missing or invalid.");
-        return;
-    }
-
-    let latLngs = route.map(point => [point.lat, point.lng]);
-
-    if (latLngs.length > 1) {
-        // ✅ Store new routeLayer globally so it can be removed later
-        window.routeLayer = L.polyline(latLngs, { color: "blue", weight: 5 }).addTo(map);
-        console.log("✅ Route drawn successfully.");
-        map.fitBounds(window.routeLayer.getBounds());
-    } else {
-        console.error("❌ Error: Route has too few points.");
-        alert("Error: Route has too few points.");
-    }
-}
-
-
-
 </script>
 </body>
 </html>
