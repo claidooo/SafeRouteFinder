@@ -10,27 +10,31 @@
 </head>
 <body>
 <div id="map"></div>
+
 <script>
     var urlParams = new URLSearchParams(window.location.search);
     var userLat = parseFloat(urlParams.get('lat')) || 14.5823;
     var userLng = parseFloat(urlParams.get('lng')) || 120.9860;
     var destLat, destLng;
-    var apiKey = "5b3ce3597851110001cf6248c374c1d74b7c461cb646776b494655f8";
+    var apiKey = "5b3ce3597851110001cf6248c374c1d74b7c461cb646776b494655f8"; // API Key
 
     var map = L.map('map').setView([userLat, userLng], 16);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
 
+    // 🔹 Set map boundaries
     map.setMaxBounds([
-        [14.5780, 120.9810],
-        [14.5865, 120.9910]
+        [14.5780, 120.9810],  // SW corner
+        [14.5865, 120.9910]   // NE corner
     ]);
 
+    // 🔹 User marker
     L.marker([userLat, userLng]).addTo(map)
         .bindPopup("You are here")
         .openPopup();
 
     var destinationMarker, routeLayer;
 
+    // 🔹 Click event to select destination
     map.on('click', function(e) {
         destLat = e.latlng.lat;
         destLng = e.latlng.lng;
@@ -43,35 +47,62 @@
             .bindPopup("Destination Selected")
             .openPopup();
 
-        Android.sendDestination(destLat, destLng);
+        console.log("📍 Destination set:", destLat, destLng);
+
+        // Send destination to Android (if integrated)
+        if (typeof Android !== "undefined") {
+            Android.sendDestination(destLat, destLng);
+        }
+
         getRoute(userLat, userLng, destLat, destLng);
     });
 
+    // 🔹 Fetch route from OpenRouteService (WALKING MODE)
     function getRoute(startLat, startLng, endLat, endLng) {
         let url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${startLng},${startLat}&end=${endLng},${endLat}`;
 
+        console.log("🔗 Fetching walking route from ORS:", url);
+        alert("🚶 Requesting walking route...");
+
         fetch(url)
-            .then(response => response.json())
+            .then(response => {
+                console.log("✅ API Response Status:", response.status);
+                return response.json();
+            })
             .then(data => {
-                if (!data.routes || data.routes.length === 0) {
+                console.log("✅ ORS API Response:", data);
+
+                // 🚨 Ensure response contains valid route data
+                if (!data.features || data.features.length === 0) {
                     console.error("❌ No route found!");
-                    alert("No route available.");
+                    alert("⚠️ No walking route available. Try another destination.");
                     return;
                 }
 
-                let coordinates = data.routes[0].geometry.coordinates;
+                let coordinates = data.features[0].geometry.coordinates;
+
+                // 🚨 Ensure valid coordinates
+                if (!coordinates || coordinates.length < 2) {
+                    console.error("❌ Error: Route has too few points.");
+                    alert("⚠️ Error: Route is incomplete.");
+                    return;
+                }
+
                 let latLngs = coordinates.map(coord => [coord[1], coord[0]]);
 
+                // 🚨 Clear previous route
                 if (routeLayer) {
                     map.removeLayer(routeLayer);
                 }
 
-                routeLayer = L.polyline(latLngs, { color: "blue", weight: 5 }).addTo(map);
+                // 🚨 Draw new walking route
+                routeLayer = L.polyline(latLngs, { color: "green", weight: 5 }).addTo(map);
+                console.log("✅ Walking route drawn successfully!");
                 map.fitBounds(routeLayer.getBounds());
             })
             .catch(error => {
                 console.error("❌ Route Fetch Error:", error);
-                alert("Error fetching route.");
+                alert("⚠️ Error fetching walking route. Check your internet or API key.");
             });
     }
 </script>
