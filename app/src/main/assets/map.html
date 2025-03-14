@@ -6,103 +6,167 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
     <style>
         #map { height: 100vh; }
+
+        /* ✅ Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+            width: 80%;
+            max-width: 300px;
+            margin: 20% auto;
+            border-radius: 10px;
+        }
+        .modal-buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .btn-confirm { background-color: green; color: white; }
+        .btn-cancel { background-color: red; color: white; }
     </style>
 </head>
 <body>
 <div id="map"></div>
 
+<!-- ✅ Custom Modal for Confirmation -->
+<div id="confirmationModal" class="modal">
+    <div class="modal-content">
+        <p id="modalText">Start route to this destination?</p>
+        <div class="modal-buttons">
+            <button class="btn btn-confirm" onclick="startRoute()">OK</button>
+            <button class="btn btn-cancel" onclick="cancelRoute()">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <script>
     var urlParams = new URLSearchParams(window.location.search);
-    var userLat = parseFloat(urlParams.get('lat')) || 14.5823;
-    var userLng = parseFloat(urlParams.get('lng')) || 120.9860;
-    var destLat, destLng;
-    var apiKey = "5b3ce3597851110001cf6248c374c1d74b7c461cb646776b494655f8"; // API Key
+    var userLat = parseFloat(urlParams.get('lat')) || 14.5833;
+    var userLng = parseFloat(urlParams.get('lng')) || 120.9867;
+    var destLat, destLng, streetName;
+    var apiKey = "5b3ce3597851110001cf6248c374c1d74b7c461cb646776b494655f8"; // ORS API Key
 
-    var map = L.map('map').setView([userLat, userLng], 16);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+    var map = L.map('map').setView([userLat, userLng], 17);
 
-    // 🔹 Set map boundaries
-    map.setMaxBounds([
-        [14.5780, 120.9810],  // SW corner
-        [14.5865, 120.9910]   // NE corner
-    ]);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-    // 🔹 User marker
-    L.marker([userLat, userLng]).addTo(map)
-        .bindPopup("You are here")
-        .openPopup();
+    // ✅ Mark User's Current Location
+    var userMarker = L.marker([userLat, userLng], {icon: L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/447/447031.png',
+        iconSize: [30, 30]
+    })}).addTo(map).bindPopup("📍 You are here").openPopup();
 
     var destinationMarker, routeLayer;
 
-    // 🔹 Click event to select destination
-    map.on('click', function(e) {
-        destLat = e.latlng.lat;
-        destLng = e.latlng.lng;
+    // ✅ Handle Click to Set Destination
+    map.on('click', function (e) {
+        getStreetName(e.latlng.lat, e.latlng.lng);
+    });
 
+    // ✅ Get Street Name from Reverse Geocoding
+    function getStreetName(lat, lng) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.address) {
+                    streetName = data.address.road || "Unknown Street";
+                } else {
+                    streetName = "Unknown Location";
+                }
+
+                showConfirmationModal(lat, lng, streetName);
+            })
+            .catch(error => {
+                console.error("❌ Error getting street name:", error);
+                streetName = "Unknown Location";
+                showConfirmationModal(lat, lng, streetName);
+            });
+    }
+
+    // ✅ Show Custom Modal
+    function showConfirmationModal(lat, lng, street) {
+        destLat = lat;
+        destLng = lng;
+
+        // Remove old destination marker
         if (destinationMarker) {
             map.removeLayer(destinationMarker);
         }
 
-        destinationMarker = L.marker([destLat, destLng]).addTo(map)
-            .bindPopup("Destination Selected")
-            .openPopup();
+        // Add new destination marker
+        destinationMarker = L.marker([lat, lng]).addTo(map)
+            .bindPopup(`📍 Destination: ${street}`).openPopup();
 
-        console.log("📍 Destination set:", destLat, destLng);
+        document.getElementById("modalText").innerHTML = `Start route to <b>${street}</b>?`;
+        document.getElementById("confirmationModal").style.display = "block";
+    }
 
-        // Send destination to Android (if integrated)
-        if (typeof Android !== "undefined") {
-            Android.sendDestination(destLat, destLng);
-        }
-
+    // ✅ Start Route if User Confirms
+    function startRoute() {
+        document.getElementById("confirmationModal").style.display = "none";
         getRoute(userLat, userLng, destLat, destLng);
-    });
+    }
 
-    // 🔹 Fetch route from OpenRouteService (WALKING MODE)
+    // ✅ Cancel Route and Remove Marker
+    function cancelRoute() {
+        document.getElementById("confirmationModal").style.display = "none";
+
+        if (destinationMarker) {
+            map.removeLayer(destinationMarker);
+            destinationMarker = null;
+        }
+    }
+
+    // ✅ Fetch Route from OpenRouteService
     function getRoute(startLat, startLng, endLat, endLng) {
         let url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${startLng},${startLat}&end=${endLng},${endLat}`;
 
-        console.log("🔗 Fetching walking route from ORS:", url);
-        alert("🚶 Requesting walking route...");
-
         fetch(url)
-            .then(response => {
-                console.log("✅ API Response Status:", response.status);
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log("✅ ORS API Response:", data);
-
-                // 🚨 Ensure response contains valid route data
                 if (!data.features || data.features.length === 0) {
-                    console.error("❌ No route found!");
                     alert("⚠️ No walking route available. Try another destination.");
                     return;
                 }
 
                 let coordinates = data.features[0].geometry.coordinates;
-
-                // 🚨 Ensure valid coordinates
                 if (!coordinates || coordinates.length < 2) {
-                    console.error("❌ Error: Route has too few points.");
                     alert("⚠️ Error: Route is incomplete.");
                     return;
                 }
 
                 let latLngs = coordinates.map(coord => [coord[1], coord[0]]);
 
-                // 🚨 Clear previous route
                 if (routeLayer) {
                     map.removeLayer(routeLayer);
                 }
 
-                // 🚨 Draw new walking route
                 routeLayer = L.polyline(latLngs, { color: "green", weight: 5 }).addTo(map);
-                console.log("✅ Walking route drawn successfully!");
                 map.fitBounds(routeLayer.getBounds());
             })
             .catch(error => {
+                alert("⚠️ Error fetching walking route.");
                 console.error("❌ Route Fetch Error:", error);
-                alert("⚠️ Error fetching walking route. Check your internet or API key.");
             });
     }
 </script>
