@@ -1,6 +1,8 @@
 package com.cjsm.saferoutefinder;
 
 import android.Manifest;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -11,9 +13,9 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -27,10 +29,9 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST = 1;
 
-    private FloatingActionButton fabMain;
+    private FloatingActionButton fabMain, fabAccount, fabRatings, fabSettings, fabLogout;
     private View fabMenu;
     private boolean isFabOpen = false;
-
     private double userLat = 14.5839, userLng = 120.9833; // Default Manila location
 
     @Override
@@ -62,19 +63,21 @@ public class MainActivity extends AppCompatActivity {
         requestCurrentLocation();
 
         // Initialize FAB menu
-        fabMain = findViewById(R.id.fabMain);
-        fabMenu = findViewById(R.id.fabMenu);
-        Button btnRate = findViewById(R.id.btnRate);
-        Button btnSettings = findViewById(R.id.btnSettings);
-        Button btnLogout = findViewById(R.id.btnLogout);
+        fabMain = findViewById(R.id.fab_main);
+        fabMenu = findViewById(R.id.fab_menu);
+        fabAccount = findViewById(R.id.fab_account);
+        fabRatings = findViewById(R.id.fab_ratings);
+        fabSettings = findViewById(R.id.fab_settings);
+        fabLogout = findViewById(R.id.fab_logout);
 
         // Toggle FAB Menu
         fabMain.setOnClickListener(v -> toggleFabMenu());
 
         // Handle Menu Button Clicks
-        btnRate.setOnClickListener(v -> rateStreet());
-        btnSettings.setOnClickListener(v -> openSettings());
-        btnLogout.setOnClickListener(v -> logout());
+        fabAccount.setOnClickListener(v -> openAccountSettings());
+        fabRatings.setOnClickListener(v -> showRatingsPopup());
+        fabSettings.setOnClickListener(v -> openSettings());
+        fabLogout.setOnClickListener(v -> showLogoutConfirmation());
     }
 
     // ✅ Toggle FAB Menu
@@ -131,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void sendDestination(double lat, double lng) {
             activity.runOnUiThread(() -> {
-                Toast.makeText(activity, "Destination set!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, "Destination: " + lat + ", " + lng, Toast.LENGTH_SHORT).show();
                 Log.d("DEBUG", "📍 Destination: " + lat + ", " + lng);
             });
         }
@@ -150,16 +153,36 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ✅ Placeholder Methods for Features
-    private void rateStreet() {
-        Toast.makeText(this, "⭐ Rate Street Feature Coming Soon!", Toast.LENGTH_SHORT).show();
+    // ✅ Handle Account Settings
+    private void openAccountSettings() {
+        //Intent intent = new Intent(MainActivity.this, AccountSettingsActivity.class);
+        //startActivity(intent);
     }
 
+    // ✅ Handle Ratings Popup
+    private void showRatingsPopup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Rate This Area")
+                .setMessage("How would you rate the safety of this street?")
+                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    // ✅ Handle App Settings
     private void openSettings() {
-        Toast.makeText(this, "⚙️ Settings Feature Coming Soon!", Toast.LENGTH_SHORT).show();
+        //Intent intent = new Intent(MainActivity.this, activity.class);
+        //startActivity(intent);
     }
 
-    private void logout() {
-        Toast.makeText(this, "🔓 Logout Feature Coming Soon!", Toast.LENGTH_SHORT).show();
+    // ✅ Handle Logout Confirmation
+    private void showLogoutConfirmation() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Confirm Logout")
+                .setMessage("Are you sure you want to log out?")
+                .setPositiveButton("Logout", (dialog, which) -> finish())
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 }
