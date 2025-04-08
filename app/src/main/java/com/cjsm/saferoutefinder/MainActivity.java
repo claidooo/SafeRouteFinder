@@ -2,11 +2,11 @@ package com.cjsm.saferoutefinder;
 
 import android.Manifest;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -29,9 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST = 1;
 
-    private FloatingActionButton fabMain, fabAccount, fabRatings, fabSettings, fabLogout;
+    private FloatingActionButton fabMain, fabAccount, fabCommunity, fabSettings, fabLogout;
     private View fabMenu;
-    private boolean isFabOpen = false;
     private double userLat = 14.5839, userLng = 120.9833; // Default Manila location
 
     @Override
@@ -66,28 +65,11 @@ public class MainActivity extends AppCompatActivity {
         fabMain = findViewById(R.id.fab_main);
         fabMenu = findViewById(R.id.fab_menu);
         fabAccount = findViewById(R.id.fab_account);
-        fabRatings = findViewById(R.id.fab_ratings);
+        fabCommunity = findViewById(R.id.fab_community);  // Changed from fabRatings
         fabSettings = findViewById(R.id.fab_settings);
-        fabLogout = findViewById(R.id.fab_logout);
 
-        // Toggle FAB Menu
-        fabMain.setOnClickListener(v -> toggleFabMenu());
-
-        // Handle Menu Button Clicks
-        fabAccount.setOnClickListener(v -> openAccountSettings());
-        fabRatings.setOnClickListener(v -> showRatingsPopup());
-        fabSettings.setOnClickListener(v -> openSettings());
-        fabLogout.setOnClickListener(v -> showLogoutConfirmation());
-    }
-
-    // ✅ Toggle FAB Menu
-    private void toggleFabMenu() {
-        if (isFabOpen) {
-            fabMenu.setVisibility(View.GONE);
-        } else {
-            fabMenu.setVisibility(View.VISIBLE);
-        }
-        isFabOpen = !isFabOpen;
+        // Use external handler for FAB functionality
+        new FabMenuHandler(this, fabMain, fabAccount, fabCommunity, fabSettings, fabLogout, fabMenu);  // Updated handler to use fabCommunity
     }
 
     // ✅ Request Location Permissions & Fetch User Location
@@ -151,38 +133,5 @@ public class MainActivity extends AppCompatActivity {
                 loadMap();
             }
         }
-    }
-
-    // ✅ Handle Account Settings
-    private void openAccountSettings() {
-        //Intent intent = new Intent(MainActivity.this, AccountSettingsActivity.class);
-        //startActivity(intent);
-    }
-
-    // ✅ Handle Ratings Popup
-    private void showRatingsPopup() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Rate This Area")
-                .setMessage("How would you rate the safety of this street?")
-                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-    // ✅ Handle App Settings
-    private void openSettings() {
-        //Intent intent = new Intent(MainActivity.this, activity.class);
-        //startActivity(intent);
-    }
-
-    // ✅ Handle Logout Confirmation
-    private void showLogoutConfirmation() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Confirm Logout")
-                .setMessage("Are you sure you want to log out?")
-                .setPositiveButton("Logout", (dialog, which) -> finish())
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
     }
 }

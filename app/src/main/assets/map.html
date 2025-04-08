@@ -161,7 +161,7 @@
                     map.removeLayer(routeLayer);
                 }
 
-                routeLayer = L.polyline(latLngs, { color: "green", weight: 5 }).addTo(map);
+                routeLayer = L.polyline(latLngs, { color: "BLUE", weight: 4 }).addTo(map);
                 map.fitBounds(routeLayer.getBounds());
             })
             .catch(error => {

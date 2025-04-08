@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-
+    <!-- Permissions to access location and internet -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -17,15 +17,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SafeRouteFinder"
         tools:targetApi="31">
+
+        <!-- MainActivity entry -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Register other activities like AccountSettingsActivity -->
+        <activity android:name=".AccountSettingsActivity" android:exported="true"/>
+        <activity android:name=".SettingsActivity" android:exported="true"/>
+
     </application>
 
 </manifest>

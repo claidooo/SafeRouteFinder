@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -16,11 +15,12 @@
         android:id="@+id/fab_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_add"
+        android:src="@drawable/menu_main"
         android:layout_margin="16dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        app:backgroundTint="#808080"/>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        app:backgroundTint="#7E71C3"
+        app:tint="@android:color/white" />
 
     <!-- FAB Menu (Initially Hidden) -->
     <LinearLayout
@@ -28,42 +28,44 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_alignStart="@+id/fab_main"
-        android:layout_below="@+id/fab_main"
+        android:layout_alignEnd="@+id/fab_main"
+        android:layout_above="@+id/fab_main"
         android:visibility="gone"
         android:paddingTop="8dp"
         android:paddingBottom="8dp">
 
+        <!-- Account Settings Button -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:src="@android:drawable/ic_menu_edit"
-            app:backgroundTint="#808080"/>
+            android:src="@drawable/menu_account"
+            app:backgroundTint="#7E71C3"
+            app:tint="@android:color/white" />
 
+        <!-- Community Tab Button -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_ratings"
+            android:id="@+id/fab_community"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:src="@android:drawable/ic_menu_info_details"
-            app:backgroundTint="#808080"/>
+            android:src="@drawable/menu_community"
+            app:backgroundTint="#7E71C3"
+            app:tint="@android:color/white" />
 
+        <!-- Settings Button -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_settings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:src="@android:drawable/ic_menu_preferences"
-            app:backgroundTint="#808080"/>
+            android:src="@drawable/menu_settings"
+            app:backgroundTint="#7E71C3"
+            app:tint="@android:color/white" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_logout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
-            app:backgroundTint="#808080"/>
+
+
     </LinearLayout>
 
 </RelativeLayout>
