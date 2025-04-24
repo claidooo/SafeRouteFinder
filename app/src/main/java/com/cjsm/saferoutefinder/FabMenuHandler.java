@@ -34,17 +34,53 @@ public class FabMenuHandler {
     }
 
     private void openAccountSettings() {
-        Intent intent = new Intent(activity, AccountSettingsActivity.class);
-        activity.startActivity(intent);
+        // Inflate the layout
+        View dialogView = activity.getLayoutInflater().inflate(R.layout.activity_account_settings, null);
+
+        // Reference UI elements inside the popup
+        View backButton = dialogView.findViewById(R.id.btn_back);
+        View logoutButton = dialogView.findViewById(R.id.btn_logout);
+
+        // Create and show the dialog
+        AlertDialog dialog = new AlertDialog.Builder(activity, R.style.TransparentDialog)
+                .setView(dialogView)
+                .create();
+
+        // Dismiss dialog when back button is clicked
+        backButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Handle logout confirmation
+        logoutButton.setOnClickListener(v -> {
+            new AlertDialog.Builder(activity)
+                    .setTitle("Confirm Logout")
+                    .setMessage("Do you wish to log out?")
+                    .setPositiveButton("Logout", (d, which) -> System.exit(0))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+
+        dialog.show();
     }
 
+
+
     private void showCommunityTab() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Community Tab")
-                .setMessage("test")
-                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
+        // Inflate the layout
+        View dialogView = activity.getLayoutInflater().inflate(R.layout.activity_communitytab, null);
+
+        // Optionally set up close button behavior
+        View backButton = dialogView.findViewById(R.id.back_Button);
+        AlertDialog dialog = new AlertDialog.Builder(activity, R.style.TransparentDialog)
+                .setView(dialogView)
+                .create();
+
+        // Close popup on back button click
+        backButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Show the dialog
+        dialog.show();
     }
+
 
     private void openSettings() {
         Intent intent = new Intent(activity, SettingsActivity.class);

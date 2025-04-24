@@ -29,7 +29,10 @@
         </activity>
 
         <!-- Register other activities like AccountSettingsActivity -->
-        <activity android:name=".AccountSettingsActivity" android:exported="true"/>
+        <activity
+            android:name=".AccountSettingsActivity"
+            android:theme="@style/Theme.SafeRouteFinder.Transparent"
+            android:exported="true" />
         <activity android:name=".SettingsActivity" android:exported="true"/>
 
     </application>
