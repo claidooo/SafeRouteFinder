@@ -9,63 +9,201 @@
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <!-- Main Floating Action Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_main"
+    <ProgressBar
+        android:id="@+id/webViewProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/menu_main"
-        android:layout_margin="16dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        app:backgroundTint="#7E71C3"
-        app:tint="@android:color/white" />
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
-    <!-- FAB Menu (Initially Hidden) -->
     <LinearLayout
-        android:id="@+id/fab_menu"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_alignEnd="@+id/fab_main"
-        android:layout_above="@+id/fab_main"
-        android:visibility="gone"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="20dp">
 
-        <!-- Account Settings Button -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_account"
+        <TextView
+            android:id="@+id/burgerLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:src="@drawable/menu_account"
-            app:backgroundTint="#7E71C3"
-            app:tint="@android:color/white" />
+            android:text=""
+            android:textSize="10sp"
+            android:gravity="center"
+            android:textColor="@color/white" />
+    </LinearLayout>
 
-        <!-- Community Tab Button -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_community"
-            android:layout_width="wrap_content"
+    <!--BURGER ICON-->
+    <LinearLayout
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_margin="20dp"
+        android:background="@drawable/rc_home"
+        >
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/burgerButton"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:src="@drawable/menu_community"
-            app:backgroundTint="#7E71C3"
-            app:tint="@android:color/white" />
-
-        <!-- Settings Button -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_settings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:src="@drawable/menu_settings"
-            app:backgroundTint="#7E71C3"
-            app:tint="@android:color/white" />
-
-
+            android:src="@drawable/ic_burger"
+            app:shapeAppearanceOverlay="@style/CircularImage"
+            android:scaleType="centerCrop"
+            android:layout_margin="7dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"/>
 
     </LinearLayout>
+
+    <!--MENU BUTTONS-->
+
+    <LinearLayout
+        android:id="@+id/sidebar"
+        android:layout_width="85dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:orientation="vertical"
+        android:background="@drawable/rc_home"
+        android:padding="16dp"
+        android:layout_margin="8dp"
+        android:visibility="gone">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="20dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/profile_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_profile"
+                app:shapeAppearanceOverlay="@style/CircularImage"
+                android:scaleType="centerCrop"
+                app:strokeColor="@color/border_color"
+                app:strokeWidth="0.5dp"
+                android:layout_marginBottom="5dp"/>
+
+            <TextView
+                android:id="@+id/profileLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:textSize="10sp"
+                android:gravity="center"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="20dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/routeButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_route"
+                app:shapeAppearanceOverlay="@style/CircularImage"
+                android:scaleType="centerCrop"
+                app:strokeColor="@color/border_color"
+                app:strokeWidth="0.5dp" />
+
+            <TextView
+                android:id="@+id/routeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Route"
+                android:textSize="10sp"
+                android:gravity="center"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="20dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/communitybutton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_community"
+                app:shapeAppearanceOverlay="@style/CircularImage"
+                android:scaleType="centerCrop"
+                app:strokeColor="@color/border_color"
+                app:strokeWidth="0.5dp" />
+
+            <TextView
+                android:id="@+id/communityLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Community"
+                android:textSize="9sp"
+                android:gravity="center"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="20dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/settingsButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_settings"
+                app:shapeAppearanceOverlay="@style/CircularImage"
+                android:scaleType="centerCrop"
+                app:strokeColor="@color/border_color"
+                app:strokeWidth="0.5dp" />
+
+            <TextView
+                android:id="@+id/settingsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings"
+                android:textSize="10sp"
+                android:gravity="center"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <include
+        android:id="@+id/route_overlay"
+        layout="@layout/activity_communitytab"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/comm_overlay"
+        layout="@layout/activity_communitytab"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/profile_overlay"
+        layout="@layout/activity_account_settings"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
 </RelativeLayout>

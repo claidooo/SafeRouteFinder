@@ -30,21 +30,15 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:orientation="horizontal"
                     android:layout_margin="20dp">
-
-                    <ImageView
-                        android:id="@+id/btn_back"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_gravity="center_vertical"
-                        android:src="@drawable/back2"
-                        android:layout_marginRight="10dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Account Settings"
+                        android:textColor="#7e71c3"
                         android:textSize="22sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -71,6 +65,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="amagikun"
+                        android:textColor="#7e71c3"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:layout_marginTop="5dp" />
@@ -120,7 +115,7 @@
                         android:text="Logout"
                         android:textColor="@android:color/white"
                         android:layout_gravity="center"
-                        android:backgroundTint="#7e71c3"/>
+                        android:backgroundTint="#71CF95"/>
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>

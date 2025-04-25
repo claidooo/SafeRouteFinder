@@ -11,8 +11,8 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:icon="@drawable/logo"
+        android:label="SecurePath 2.0"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SafeRouteFinder"
@@ -20,7 +20,7 @@
 
         <!-- MainActivity entry -->
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,12 +28,20 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
+
+
         <!-- Register other activities like AccountSettingsActivity -->
         <activity
             android:name=".AccountSettingsActivity"
             android:theme="@style/Theme.SafeRouteFinder.Transparent"
             android:exported="true" />
-        <activity android:name=".SettingsActivity" android:exported="true"/>
 
     </application>
 

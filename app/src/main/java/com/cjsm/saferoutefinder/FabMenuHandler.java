@@ -1,3 +1,4 @@
+
 package com.cjsm.saferoutefinder;
 
 import android.app.Activity;
@@ -38,7 +39,7 @@ public class FabMenuHandler {
         View dialogView = activity.getLayoutInflater().inflate(R.layout.activity_account_settings, null);
 
         // Reference UI elements inside the popup
-        View backButton = dialogView.findViewById(R.id.btn_back);
+
         View logoutButton = dialogView.findViewById(R.id.btn_logout);
 
         // Create and show the dialog
@@ -47,7 +48,7 @@ public class FabMenuHandler {
                 .create();
 
         // Dismiss dialog when back button is clicked
-        backButton.setOnClickListener(v -> dialog.dismiss());
+
 
         // Handle logout confirmation
         logoutButton.setOnClickListener(v -> {
@@ -89,3 +90,4 @@ public class FabMenuHandler {
 
 
 }
+

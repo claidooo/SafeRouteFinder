@@ -12,47 +12,28 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 public class AccountSettingsActivity extends AppCompatActivity {
-    private Button btnLogout;
-    private ImageView btnBack; // Changed to Button
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_settings);
 
-        // Initialize buttons
-        btnLogout = findViewById(R.id.btn_logout);
-        btnBack = findViewById(R.id.btn_back); // Button instead of ImageButton
 
-        // Set a listener for the Back button
-        btnBack.setOnClickListener(v -> onBackPressed());
+        // Initialize logout button as a local variable
+        Button btnLogout = findViewById(R.id.btn_logout);
 
-        // Set a listener for the Logout button
-        btnLogout.setOnClickListener(v -> showLogoutConfirmation());
+        // Set listener for the Logout button
+        btnLogout.setOnClickListener(v -> performLogout());
     }
-
     // Show logout confirmation dialog
-    private void showLogoutConfirmation() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(AccountSettingsActivity.this);
-        builder.setTitle("Confirm Logout")
-                .setMessage("Do you wish to log out?")
-                .setPositiveButton("Logout", (dialog, which) -> performLogout())
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
-    }
 
-    // Perform logout action
+
+    // Actual logout logic
     private void performLogout() {
-        // You can add any logout logic here (e.g., clearing session, authentication token)
-        System.exit(0); // Close the AccountSettingsActivity to prevent the user from going back
-    }
-
-    // Override onBackPressed() to handle the back button press
-    @Override
-    public void onBackPressed() {
-        // When the back button is pressed, just finish the activity (go back to MainActivity)
-        Intent intent = new Intent(AccountSettingsActivity.this, MainActivity.class);
+        // Navigate to LoginActivity and clear the back stack
+        Intent intent = new Intent(AccountSettingsActivity.this, LoginActivity.class);
         startActivity(intent);
-        finish(); // Close the AccountSettingsActivity
+        finish();  // Finish current activity and all parent activities
     }
 }

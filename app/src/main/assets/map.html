@@ -7,6 +7,7 @@
     <style>
         #map { height: 100vh; }
 
+
         /* ✅ Modal Styles */
         .modal {
             display: none;
@@ -41,10 +42,28 @@
         }
         .btn-confirm { background-color: green; color: white; }
         .btn-cancel { background-color: red; color: white; }
+
+
+        .leaflet-control-zoom
+        {
+            position: absolute;
+            bottom: 10px;  /* Adjust as necessary */
+            right: 10px;   /* Adjust as necessary */
+        }
+
+
+        .leaflet-control-zoom-in,
+        .leaflet-control-zoom-out {
+            background-color: #FFF; /* Change button color */
+            border: 1px solid #7e71c3; /* Button border color */
+            width: 40px;            /* Adjust size */
+            height: 40px;           /* Adjust size */
+        }
     </style>
 </head>
 <body>
 <div id="map"></div>
+
 
 <!-- ✅ Custom Modal for Confirmation -->
 <div id="confirmationModal" class="modal">
@@ -57,18 +76,22 @@
     </div>
 </div>
 
+
 <script>
+    let routeModeEnabled = false;
     var urlParams = new URLSearchParams(window.location.search);
     var userLat = parseFloat(urlParams.get('lat')) || 14.5833;
     var userLng = parseFloat(urlParams.get('lng')) || 120.9867;
     var destLat, destLng, streetName;
     var apiKey = "5b3ce3597851110001cf6248c374c1d74b7c461cb646776b494655f8"; // ORS API Key
 
-    var map = L.map('map').setView([userLat, userLng], 17);
+    var map = L.map('map').setView([14.58594,120.98574], 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
+    map.zoomControl.setPosition('bottomright');
+
 
     // ✅ Mark User's Current Location
     var userMarker = L.marker([userLat, userLng], {icon: L.icon({
@@ -76,12 +99,47 @@
         iconSize: [30, 30]
     })}).addTo(map).bindPopup("📍 You are here").openPopup();
 
+
     var destinationMarker, routeLayer;
+
 
     // ✅ Handle Click to Set Destination
     map.on('click', function (e) {
+    if (routeModeEnabled) {
         getStreetName(e.latlng.lat, e.latlng.lng);
-    });
+    }
+ });
+
+ // 🏫 Coordinates of Adamson University (approx)
+const adamsonLat = 14.58594;
+const adamsonLng = 120.98574;
+
+// Add 500m circle to map
+const radiusCircle = L.circle([adamsonLat, adamsonLng], {
+    radius: 500,
+    color: '#3388ff',
+    fillColor: '#3388ff33',
+    fillOpacity: 0.3
+}).addTo(map);
+
+// 🌫 Create a gray mask outside the circle
+const outerBounds = [
+    [90, -180],  // top-left
+    [90, 180],
+    [-90, 180],
+    [-90, -180]
+];
+
+const mask = L.polygon([
+    outerBounds,
+    radiusCircle.getLatLngs()[0] // The circle’s latLngs become the hole
+], {
+    color: '#999',
+    fillColor: '#999',
+    fillOpacity: 0.5,
+    stroke: false
+}).addTo(map);
+
 
     // ✅ Get Street Name from Reverse Geocoding
     function getStreetName(lat, lng) {
@@ -94,6 +152,7 @@
                     streetName = "Unknown Location";
                 }
 
+
                 showConfirmationModal(lat, lng, streetName);
             })
             .catch(error => {
@@ -103,72 +162,90 @@
             });
     }
 
+
     // ✅ Show Custom Modal
     function showConfirmationModal(lat, lng, street) {
         destLat = lat;
         destLng = lng;
+
 
         // Remove old destination marker
         if (destinationMarker) {
             map.removeLayer(destinationMarker);
         }
 
+
         // Add new destination marker
         destinationMarker = L.marker([lat, lng]).addTo(map)
             .bindPopup(`📍 Destination: ${street}`).openPopup();
+
 
         document.getElementById("modalText").innerHTML = `Start route to <b>${street}</b>?`;
         document.getElementById("confirmationModal").style.display = "block";
     }
 
     // ✅ Start Route if User Confirms
-    function startRoute() {
-        document.getElementById("confirmationModal").style.display = "none";
-        getRoute(userLat, userLng, destLat, destLng);
+   function startRoute() {
+       document.getElementById("confirmationModal").style.display = "none";
+       getRoute(userLat, userLng, destLat, destLng);
+   }
+
+
+   // ✅ Cancel Route and Remove Marker
+   function cancelRoute() {
+       document.getElementById("confirmationModal").style.display = "none";
+
+
+       if (destinationMarker) {
+           map.removeLayer(destinationMarker);
+           destinationMarker = null;
+       }
+   }
+
+
+   // ✅ Fetch Route from OpenRouteService
+   function getRoute(startLat, startLng, endLat, endLng) {
+    let url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${startLng},${startLat}&end=${endLng},${endLat}`;
+    console.log("Request URL:", url);  // Print the URL to the console for debugging
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP status " + response.status);  // Display the HTTP status code if the request fails
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data.features || data.features.length === 0) {
+                alert("⚠️ No walking route available. Try another destination.");
+                return;
+            }
+
+            let coordinates = data.features[0].geometry.coordinates;
+            if (!coordinates || coordinates.length < 2) {
+                alert("⚠️ Error: Route is incomplete.");
+                return;
+            }
+
+            let latLngs = coordinates.map(coord => [coord[1], coord[0]]);
+            if (routeLayer) {
+                map.removeLayer(routeLayer);
+            }
+
+            routeLayer = L.polyline(latLngs, { color: "BLUE", weight: 4 }).addTo(map);
+            map.fitBounds(routeLayer.getBounds());
+        })
+        .catch(error => {
+            alert("⚠️ Error: " + error.message);  // Show detailed error message in the alert
+            console.error("❌ Route Fetch Error:", error);  // Log the full error in the console
+        });
     }
 
-    // ✅ Cancel Route and Remove Marker
-    function cancelRoute() {
-        document.getElementById("confirmationModal").style.display = "none";
-
-        if (destinationMarker) {
-            map.removeLayer(destinationMarker);
-            destinationMarker = null;
-        }
-    }
-
-    // ✅ Fetch Route from OpenRouteService
-    function getRoute(startLat, startLng, endLat, endLng) {
-        let url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${startLng},${startLat}&end=${endLng},${endLat}`;
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (!data.features || data.features.length === 0) {
-                    alert("⚠️ No walking route available. Try another destination.");
-                    return;
-                }
-
-                let coordinates = data.features[0].geometry.coordinates;
-                if (!coordinates || coordinates.length < 2) {
-                    alert("⚠️ Error: Route is incomplete.");
-                    return;
-                }
-
-                let latLngs = coordinates.map(coord => [coord[1], coord[0]]);
-
-                if (routeLayer) {
-                    map.removeLayer(routeLayer);
-                }
-
-                routeLayer = L.polyline(latLngs, { color: "BLUE", weight: 4 }).addTo(map);
-                map.fitBounds(routeLayer.getBounds());
-            })
-            .catch(error => {
-                alert("⚠️ Error fetching walking route.");
-                console.error("❌ Route Fetch Error:", error);
-            });
-    }
+   function enableRouteMode() {
+       routeModeEnabled = true;
+   }
 </script>
 </body>
 </html>
+
+
