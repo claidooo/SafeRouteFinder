@@ -13,8 +13,51 @@
         android:layout_height="450dp"
         android:orientation="vertical"
         android:background="@drawable/rc_route"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:padding="40dp">
 
+        <Button
+            android:id="@+id/btnChangeTheme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Change Theme"
+            android:backgroundTint="#6200EE"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="10dp" />
 
+        <Button
+            android:id="@+id/btnNotificationSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Notification Settings"
+            android:backgroundTint="#6200EE"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnPrivacyPolicy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Privacy Policy"
+            android:backgroundTint="#6200EE"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnLanguage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Language"
+            android:backgroundTint="#6200EE"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnAppVersion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="App Version"
+            android:backgroundTint="#6200EE"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 </FrameLayout>
