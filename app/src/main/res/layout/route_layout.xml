@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:background="@android:color/transparent"
+    android:id="@+id/route_layout"> <!-- Add the ID for overlay -->
+
+    <!-- Content for the overlay -->
+    <LinearLayout
+        android:layout_width="240dp"
+        android:layout_height="155dp"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:background="@drawable/rc_route"
+        android:layout_marginLeft="106dp"
+        android:layout_marginTop="20dp">
+
+        <!-- Your Location Input Field -->
+        <LinearLayout
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp">
+
+            <!-- Close Button -->
+            <ImageView
+                android:id="@+id/closeButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/back"
+                android:layout_marginRight="74dp"/>
+
+            <!-- Find Route Button -->
+            <ImageView
+                android:id="@+id/find_route_button"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/f_route_button" />
+        </LinearLayout>
+
+        <!-- Your Location Input Field -->
+        <LinearLayout
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center">
+
+            <LinearLayout
+                android:layout_width="24dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center"
+                android:layout_marginRight="3dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="65dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/route_iconsdec" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/your_location_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Your Location"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="7dp"
+                    android:layout_marginBottom="15dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="12sp"
+                    android:background="@drawable/rounded_edittext" />
+
+                <EditText
+                    android:id="@+id/destination_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Destination"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="7dp"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/black"
+                    android:background="@drawable/rounded_edittext" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

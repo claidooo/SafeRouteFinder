@@ -2,10 +2,8 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
     <style>
         #map { height: 100vh; }
 
@@ -94,62 +92,12 @@
     }).addTo(map);
     map.zoomControl.setPosition('bottomright');
 
-fetch('https://cs301projects.com/saferoutefinder/get_all_streets.php')
-.then(response => response.json())
-
-  .then(streets => {
-    console.log(streets);
-    // Initialize an array to store all markers
-    let markers = [];
-
-    streets.forEach(street => {
-    console.log(`✅ Placed ${markers.length} markers`);
-      const lat = parseFloat(street.latitude);
-      const lng = parseFloat(street.longitude);
-
-
-      if (isNaN(lat) || isNaN(lng)) return;
-
-      // Create a marker and add it to the map
-      var marker = L.marker([lng, lat], {alt: street.name}).addTo(map); // Using street name as alt
-
-      // Bind a popup with a simple string message
-marker.bindPopup(`
-  <div style="width: 200px; padding: 10px; background-color: #333; color: white; border-radius: 10px;">
-      <h3 style="margin-top: 5px; font-size: 16px; margin-bottom: 5px; text-align: center;">${street.name}</h3>
-      <div style="text-align: center;">
-          <span style="color: #FFD700;">&#9733;</span>
-          <span style="color: #FFD700;">&#9733;</span>
-          <span style="color: #FFD700;">&#9733;</span>
-          <span style="color: #FFD700;">&#9733;</span>
-          <span style="color: #bbb;">&#9733;</span>
-          <strong style="font-size: 16px;">${street.avg_user_rating || 'N/A'}</strong>
-      </div>
-      <p style="margin-top: 5px; font-size: 14px; color: #ccc; text-align: center;">${street.description || 'No description available'}</p>
-  </div>
-`);
-      // Add the marker to the array
-      markers.push(marker);
-    });
-
-  if (markers.length > 0) {
-  const group = L.featureGroup(markers);
-  map.fitBounds(group.getBounds().pad(0.2));
-}
-
-
-  })
-  .catch(error => {
-    console.error('❌ Error fetching street data:', error);
-  });
-
 
     // ✅ Mark User's Current Location
     var userMarker = L.marker([userLat, userLng], {icon: L.icon({
         iconUrl: 'https://cdn-icons-png.flaticon.com/512/447/447031.png',
         iconSize: [30, 30]
     })}).addTo(map).bindPopup("📍 You are here").openPopup();
-
 
 
     var destinationMarker, routeLayer;
@@ -179,41 +127,18 @@ const outerBounds = [
     [90, -180],  // top-left
     [90, 180],
     [-90, 180],
-    [-90, -180],
+    [-90, -180]
 ];
-
-function createCircleHole(center, radiusMeters, points = 60) {
-    const coords = [];
-    const earthRadius = 6371000; // meters
-
-    for (let i = 0; i <= points; i++) {
-        const angle = (i * 360) / points;
-        const rad = angle * (Math.PI / 180);
-        const dx = radiusMeters * Math.cos(rad);
-        const dy = radiusMeters * Math.sin(rad);
-
-        const latOffset = (dy / earthRadius) * (180 / Math.PI);
-        const lngOffset = (dx / (earthRadius * Math.cos(center.lat * Math.PI / 180))) * (180 / Math.PI);
-
-        coords.push([center.lat + latOffset, center.lng + lngOffset]);
-    }
-    return coords;
-}
-
-const center = { lat: adamsonLat, lng: adamsonLng };
-const hole = createCircleHole(center, 500);
 
 const mask = L.polygon([
     outerBounds,
-    hole
+    radiusCircle.getLatLngs()[0] // The circle’s latLngs become the hole
 ], {
     color: '#999',
     fillColor: '#999',
     fillOpacity: 0.5,
     stroke: false
 }).addTo(map);
-
-
 
 
     // ✅ Get Street Name from Reverse Geocoding
@@ -260,11 +185,10 @@ const mask = L.polygon([
     }
 
     // ✅ Start Route if User Confirms
-    function startRoute() {
-        document.getElementById("confirmationModal").style.display = "none";
-        routeModeEnabled = false;
-        findRoute(userLat, userLng, destLat, destLng);
-    }
+   function startRoute() {
+       document.getElementById("confirmationModal").style.display = "none";
+       getRoute(userLat, userLng, destLat, destLng);
+   }
 
 
    // ✅ Cancel Route and Remove Marker
@@ -278,54 +202,44 @@ const mask = L.polygon([
        }
    }
 
-function findRoute(startLat, startLng, endLat, endLng) {
-    if (routeLayer) {
-        map.removeLayer(routeLayer);
+
+   // ✅ Fetch Route from OpenRouteService
+   function getRoute(startLat, startLng, endLat, endLng) {
+    let url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${apiKey}&start=${startLng},${startLat}&end=${endLng},${endLat}`;
+    console.log("Request URL:", url);  // Print the URL to the console for debugging
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP status " + response.status);  // Display the HTTP status code if the request fails
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data.features || data.features.length === 0) {
+                alert("⚠️ No walking route available. Try another destination.");
+                return;
+            }
+
+            let coordinates = data.features[0].geometry.coordinates;
+            if (!coordinates || coordinates.length < 2) {
+                alert("⚠️ Error: Route is incomplete.");
+                return;
+            }
+
+            let latLngs = coordinates.map(coord => [coord[1], coord[0]]);
+            if (routeLayer) {
+                map.removeLayer(routeLayer);
+            }
+
+            routeLayer = L.polyline(latLngs, { color: "BLUE", weight: 4 }).addTo(map);
+            map.fitBounds(routeLayer.getBounds());
+        })
+        .catch(error => {
+            alert("⚠️ Error: " + error.message);  // Show detailed error message in the alert
+            console.error("❌ Route Fetch Error:", error);  // Log the full error in the console
+        });
     }
-
-    // Create routing control
-    routeLayer = L.Routing.control({
-        waypoints: [
-            L.latLng(startLat, startLng),
-            L.latLng(endLat, endLng)
-        ],
-        lineOptions: {
-            styles: [{ color: 'blue', opacity: 0.7, weight: 5 }]
-        },
-        router: L.Routing.osrmv1({
-            serviceUrl: 'https://router.project-osrm.org/route/v1',
-            profile: 'foot'
-        }),
-        addWaypoints: false,
-        draggableWaypoints: false,
-        createMarker: () => null // don't create extra default markers
-    })
-    .on('routesfound', function (e) {
-                    const route = e.routes[0];
-                    const distance = (route.summary.totalDistance / 1000).toFixed(2);
-                    const timeInMinutes = Math.ceil(route.summary.totalTime / 60);
-
-                    const now = new Date();
-                    const arrivalTime = new Date(now.getTime() + timeInMinutes * 60000).toLocaleTimeString();
-
-                    console.log(`Distance: ${distance} km, Time: ${timeInMinutes} minutes, Arrival: ${arrivalTime}`);
-
-                    if (typeof Android !== "undefined" && Android.showRouteDetails) {
-                        Android.showRouteDetails(distance, timeInMinutes, arrivalTime);
-                    }
-                })
-    .on('routingerror', function (e) {
-        console.error("Routing error:", e);
-        alert("An error occurred while trying to find a route.");
-    })
-    .addTo(map);
-
-    // Hide default Leaflet Routing panel (optional)
-    setTimeout(() => {
-        const panel = document.querySelector('.leaflet-routing-container');
-        if (panel) panel.style.display = 'none';
-    }, 100);
-}
 
    function enableRouteMode() {
        routeModeEnabled = true;

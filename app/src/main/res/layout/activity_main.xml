@@ -186,7 +186,7 @@
     </LinearLayout>
 
     <include
-        android:id="@+id/route_overlay"
+        android:id="@+id/comm_overlay"
         layout="@layout/activity_communitytab"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -202,6 +202,13 @@
     <include
         android:id="@+id/profile_overlay"
         layout="@layout/activity_account_settings"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/route_overlay"
+        layout="@layout/route_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
